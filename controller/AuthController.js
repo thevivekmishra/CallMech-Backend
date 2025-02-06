@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/UserModel.js'
+import User from '../models/UserModel.js';
 
 // Signup controller
 export const signup = async (req, res) => {
@@ -30,7 +30,20 @@ export const signup = async (req, res) => {
 
   try {
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully' });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: newUser._id },  // No 'isMechanic' in payload
+      process.env.JWT_SECRET_KEY,  // Use JWT_SECRET_KEY here
+      { expiresIn: process.env.JWT_EXPIRES }  // Optionally, use the JWT_EXPIRES variable as well
+    );
+
+    // Send response with userId and token
+    res.status(201).json({
+      message: 'User registered successfully',
+      userId: newUser._id,  // Return userId
+      token,  // Return the generated token
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -55,10 +68,15 @@ export const login = async (req, res) => {
 
   // Generate JWT token
   const token = jwt.sign(
-    { userId: user._id, isMechanic: user.isMechanic },
+    { userId: user._id },  // No 'isMechanic' in payload
     process.env.JWT_SECRET_KEY,  // Use JWT_SECRET_KEY here
     { expiresIn: process.env.JWT_EXPIRES }  // Optionally, use the JWT_EXPIRES variable as well
   );
 
-  res.json({ token });
+  // Send response with userId and token
+  res.json({
+    message:"User Logged in successfully",
+    token, // Return token
+    userId: user._id, // Return userId
+  });
 };
