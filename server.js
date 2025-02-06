@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import connectCloudinary from './config/Cloudinary.js';
 import adminRouter from './routes/AdminRoute.js';
+import authRoutes from './routes/AuthRoute.js'
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -22,6 +23,7 @@ connectCloudinary();
 
 //routes/endpoints
 app.use("/api/admin",adminRouter)
+app.use('/api/auth', authRoutes);
 
 // Define routes (example route)
 app.get('/', (req, res) => {
