@@ -14,7 +14,9 @@ const app = express();
 
 // Set up middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors()); // Enable CORS for cross-origin requests
+app.use(cors(
+  { credentials: true}
+)); // Enable CORS for cross-origin requests
 
 
 // Connect to MongoDB /cloudinary
