@@ -11,6 +11,7 @@ const mechSchema = new mongoose.Schema({
     experience: { type: String, required: true },
     fee: { type: String, required: true },
     companies: [{ type: String }],
+    image: {type: String,required: true},
 }, { timestamps: true });
 
 const Mech = mongoose.model('Mech', mechSchema);
