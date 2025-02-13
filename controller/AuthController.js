@@ -80,3 +80,47 @@ export const login = async (req, res) => {
     userId: user._id, // Return userId
   });
 };
+
+// Get profile controller
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');  // Do not return the password field
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// Edit Profile controller
+export const editProfile = async (req, res) => {
+  const { name, email, mobileNumber } = req.body;
+
+  try {
+    // Find the user by ID (from the decoded token)
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user details
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.mobileNumber = mobileNumber || user.mobileNumber;
+
+    // Save the updated user
+    await user.save();
+
+    res.status(200).json(user);  // Return the updated user details
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
