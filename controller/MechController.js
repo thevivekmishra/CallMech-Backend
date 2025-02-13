@@ -24,6 +24,9 @@ export const mechRegister = async (req, res) => {
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
         const imageURL = imageUpload.secure_url;
 
+        // Handle companies field, if it's a string, convert to array
+        const companiesArray = companies ? companies.split(',').map(company => company.trim()) : [];
+
         // Create a new mechanic instance
         const newMech = new Mech({
             name,
@@ -34,7 +37,7 @@ export const mechRegister = async (req, res) => {
             location,
             experience,
             fee,
-            companies,
+            companies  : companiesArray,
             image: imageURL  // Save the Cloudinary image URL in the DB
         });
 
