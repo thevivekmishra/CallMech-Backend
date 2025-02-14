@@ -37,7 +37,7 @@ export const mechRegister = async (req, res) => {
             location,
             experience,
             fee,
-            companies  : companiesArray,
+            companies: companiesArray,
             image: imageURL  // Save the Cloudinary image URL in the DB
         });
 
@@ -51,12 +51,12 @@ export const mechRegister = async (req, res) => {
 };
 
 
-
+// Get mechanics based on company
 export const getMechanicsByCompany = async (req, res) => {
     const { companyName } = req.params;
 
     try {
-        // Make the company name case-insensitive by using regex
+        // Make the company name case-insensitive using regex
         const mechanics = await Mech.find({
             companies: { $elemMatch: { $regex: new RegExp(`^${companyName}$`, 'i') } }
         });
@@ -71,3 +71,7 @@ export const getMechanicsByCompany = async (req, res) => {
         res.status(500).json({ error: 'Something went wrong. Please try again.' });
     }
 };
+
+
+
+

@@ -15,12 +15,11 @@ export const sendEmail = async (options) => {
         from: process.env.SMTP_MAIL,
         to: options.email,
         subject: options.subject,
-        text: `${options.message} \n\n Email of user who sent the message: ${options.userEmail}`,
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log("Email sent successfully!");
+        // console.log("Email sent successfully!");
     } catch (error) {
         console.error("Error sending email:", error);
         throw new Error("Failed to send email.");

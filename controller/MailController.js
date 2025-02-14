@@ -1,4 +1,6 @@
 import nodeMailer from "nodemailer";
+import Mech from '../models/Mech.js';
+
 
 const sendEmail = async (options) => {
     const transporter = nodeMailer.createTransport({
@@ -15,7 +17,7 @@ const sendEmail = async (options) => {
         from: process.env.SMTP_MAIL,
         to: options.email,
         subject: options.subject,
-        text: `${options.message} \n\n Email of user who sent the message: ${options.userEmail}`,
+        text: `${options.message} \n\n `,
     };
 
     try {
@@ -26,33 +28,52 @@ const sendEmail = async (options) => {
         throw new Error("Failed to send email.");
     }
 };
+export default sendEmail;
 
-export default sendEmail; // Change to default export
 
 export const sendMail = async (req, res) => {
-    const { name, email, message } = req.body;
-
-    if (!name || !email || !message) {
-        return res.status(400).json({
-            success: false,
-            message: "Please provide all details",
-        });
-    }
+    const { mechanicId, selectedDate, message, userName, userEmail, userMobileNumber } = req.body; // Include user data
 
     try {
+        // Fetch the mechanic's details by ID
+        const mechanic = await Mech.findById(mechanicId);
+        
+        if (!mechanic) {
+            return res.status(404).json({
+                success: false,
+                message: "Mechanic not found.",
+            });
+        }
+
+        // Construct the message that will be sent via email
+        const emailMessage = `
+            A booking has been made with the following details:
+
+
+            - Selected Date: ${selectedDate}
+           
+            - User Name: ${userName}
+            - User Email: ${userEmail}
+            - User Mobile: ${userMobileNumber}
+
+             ${message ? `- Message from the user: ${message}` : ''}
+
+            Please accept or reject the booking from your dashboard
+        `;
+
+        // Send the email to the mechanic
         await sendEmail({
-            email: "vivekmishra89994@gmail.com",
+            email: mechanic.email, // Mechanic's email from the database
             subject: "Service Booking",
-            message,
-            userEmail: email,
+            message: emailMessage, // Send the constructed message to the mechanic
         });
 
         res.status(200).json({
             success: true,
-            message: "Message sent successfully",
+            message: "Booking email sent successfully to the mechanic",
         });
     } catch (error) {
-        console.error("Email sending error:", error); // Debugging log
+        console.error("Error:", error);
         res.status(500).json({
             success: false,
             message: "Internal server error, please try again",
