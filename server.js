@@ -1,6 +1,5 @@
 import express from 'express';
 import connectDB from './config/DatabaseConfig.js';
-import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import connectCloudinary from './config/Cloudinary.js';
 import adminRouter from './routes/AdminRoute.js';
@@ -8,7 +7,6 @@ import authRoutes from './routes/AuthRoute.js'
 import mech from './routes/Mech.js'
 import dotenv from 'dotenv';
 import mailRoutes from './routes/MailRoutes.js'
-import bookingRoutes from './routes/BookingRoutes.js'
 
 dotenv.config();
 
@@ -16,8 +14,8 @@ dotenv.config();
 const app = express();
 
 // Set up middleware
-app.use(express.json()); // Parse JSON request bodies
-app.use(cors()); // Enable CORS for cross-origin requests
+app.use(express.json()); 
+app.use(cors()); 
 
 
 // Connect to MongoDB /cloudinary
@@ -29,8 +27,8 @@ app.use("/api/admin",adminRouter)
 app.use('/api/auth', authRoutes);
 app.use("/api/mech",mech)
 app.use("/api/mail",mailRoutes)
-app.use('/api/bookings', bookingRoutes);
-// Define routes (example route)
+
+
 app.get('/', (req, res) => {
   res.send('Hello from CallMech......');
 });

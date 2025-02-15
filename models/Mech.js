@@ -1,4 +1,3 @@
-// models/Mechanic.js
 import mongoose from "mongoose";
 
 const mechSchema = new mongoose.Schema({
