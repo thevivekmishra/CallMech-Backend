@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from "jsonwebtoken";
 import Mech from '../models/Mech.js';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -50,6 +51,33 @@ export const mechRegister = async (req, res) => {
     }
 };
 
+// Mechanic Login Controller
+export const loginMechanic = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if mechanic exists
+        const mechanic = await Mech.findOne({ email });
+        if (!mechanic) {
+            return res.status(404).json({ success: false, message: "Mechanic not found" });
+        }
+
+        // Compare Password
+        const isMatch = await bcrypt.compare(password, mechanic.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Invalid credentials" });
+        }
+
+        // Generate JWT Token
+        const token = jwt.sign({ id: mechanic._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
+
+        res.status(200).json({ success: true, token, mechanic });
+    } catch (error) {
+        console.error("Mechanic login error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 
 // Get mechanics based on company
 export const getMechanicsByCompany = async (req, res) => {
@@ -72,6 +100,39 @@ export const getMechanicsByCompany = async (req, res) => {
     }
 };
 
+
+// Get all mechanics
+export const getAllMechanics = async (req, res) => {
+    try {
+        const mechanics = await Mech.find();
+        
+        if (mechanics.length === 0) {
+            return res.status(404).json({ message: 'No mechanics found.' });
+        }
+
+        res.status(200).json(mechanics);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+};
+
+// Delete mechanic by ID
+export const deleteMechanic = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const mechanic = await Mech.findByIdAndDelete(id);
+
+        if (!mechanic) {
+            return res.status(404).json({ message: "Mechanic not found" });
+        }
+
+        res.json({ message: "Mechanic deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting mechanic:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 
 
