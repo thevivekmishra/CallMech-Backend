@@ -7,7 +7,7 @@ import authRoutes from './routes/AuthRoute.js'
 import mech from './routes/Mech.js'
 import dotenv from 'dotenv';
 import mailRoutes from './routes/MailRoutes.js'
-
+import bookingRoute from './routes/BookingRoutes.js'
 dotenv.config();
 
 // Initialize express app
@@ -27,6 +27,7 @@ app.use("/api/admin",adminRouter)
 app.use('/api/auth', authRoutes);
 app.use("/api/mech",mech)
 app.use("/api/mail",mailRoutes)
+app.use('/api/bookings',bookingRoute); 
 
 
 app.get('/', (req, res) => {

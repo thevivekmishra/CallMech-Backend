@@ -136,3 +136,25 @@ export const deleteMechanic = async (req, res) => {
 
 
 
+// Get the details of the currently logged-in mechanic
+export const getMechProfile = async (req, res) => {
+    try {
+        // Assuming the JWT token contains the mechanic's ID as 'id'
+        const mechanicId = req.user.id; // req.user comes from the authentication middleware
+        
+        // Find mechanic by ID
+        const mechanic = await Mech.findById(mechanicId);
+
+        if (!mechanic) {
+            return res.status(404).json({ message: 'Mechanic not found.' });
+        }
+
+        res.json(mechanic);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+};
+
+
+
