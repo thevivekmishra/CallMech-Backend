@@ -52,6 +52,32 @@ export const mechRegister = async (req, res) => {
 };
 
 // Mechanic Login Controller
+// export const loginMechanic = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+
+//         // Check if mechanic exists
+//         const mechanic = await Mech.findOne({ email });
+//         if (!mechanic) {
+//             return res.status(404).json({ success: false, message: "Mechanic not found" });
+//         }
+
+//         // Compare Password
+//         const isMatch = await bcrypt.compare(password, mechanic.password);
+//         if (!isMatch) {
+//             return res.status(400).json({ success: false, message: "Invalid credentials" });
+//         }
+
+//         // Generate JWT Token
+//         const token = jwt.sign({ id: mechanic._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
+
+//         res.status(200).json({ success: true, token, mechanic });
+//     } catch (error) {
+//         console.error("Mechanic login error:", error);
+//         res.status(500).json({ success: false, message: "Server error" });
+//     }
+// };
+// Mechanic Login Controller
 export const loginMechanic = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -71,12 +97,14 @@ export const loginMechanic = async (req, res) => {
         // Generate JWT Token
         const token = jwt.sign({ id: mechanic._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
 
-        res.status(200).json({ success: true, token, mechanic });
+        // Send mechanicId along with the token in the response
+        res.status(200).json({ success: true, token, mechanicId: mechanic._id, mechanic });
     } catch (error) {
         console.error("Mechanic login error:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 
 // Get mechanics based on company

@@ -1,15 +1,13 @@
 import express from 'express';
-import { createBooking, getBookingsForMechanic, updateBookingStatus } from '../controller/BookingController.js';
+import { createBooking, deleteBooking, getAllBookingsDetails, getBookingsForMechanic, getBookingsForUser, updateBookingStatus } from '../controller/BookingController.js';
 
 const router = express.Router();
 
-// Route for creating a new booking
 router.post('/create', createBooking);
-
-// Route for fetching bookings for a specific mechanic (dashboard)
+router.get('/all', getAllBookingsDetails);
 router.get('/:mechanicId', getBookingsForMechanic);
-
-// Route for updating booking status (approve or cancel)
+router.get('/user/:userId',getBookingsForUser);
 router.put('/update-status', updateBookingStatus);
+router.delete('/:bookingId', deleteBooking);
 
 export default router;
