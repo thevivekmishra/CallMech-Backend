@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import Mech from '../models/Mech.js';
 import { v2 as cloudinary } from 'cloudinary';
+import User from '../models/UserModel.js';
 
 export const mechRegister = async (req, res) => {
     try {
@@ -14,8 +15,13 @@ export const mechRegister = async (req, res) => {
 
         // Check if email already exists
         const existingMech = await Mech.findOne({ email });
+        const existingUser = await User.findOne({ email });
+
         if (existingMech) {
             return res.status(400).json({ error: 'Email already registered.' });
+        }
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email already registered as a User.' });
         }
 
         // Hash password

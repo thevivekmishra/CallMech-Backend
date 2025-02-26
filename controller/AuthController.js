@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/UserModel.js';
 import sendEmail from './MailController.js';
+import Mech from '../models/Mech.js';
 
 // Signup controller
 // export const signup = async (req, res) => {
@@ -62,8 +63,12 @@ export const signup = async (req, res) => {
 
   // Check if email already exists
   const existingUser = await User.findOne({ email });
+  const existingMech = await Mech.findOne({email});
   if (existingUser) {
     return res.status(400).json({ message: 'Email already registered' });
+  }
+  if (existingMech) {
+    return res.status(400).json({ message: 'Email already registered as a Mechanic' });
   }
 
   // Hash password
