@@ -1,4 +1,3 @@
-// middleware/AuthMiddleware.js
 import jwt from 'jsonwebtoken';
 
 const protect = (req, res, next) => {
@@ -9,7 +8,7 @@ const protect = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY); // Match the key here with what's in the .env file
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY); 
     req.user = decoded; // Attach decoded data (userId) to the request
     next();
   } catch (err) {

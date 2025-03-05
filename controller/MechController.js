@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import Mech from '../models/Mech.js';
 import { v2 as cloudinary } from 'cloudinary';
 import User from '../models/UserModel.js';
+import sendEmail from './MailController.js';  
 
 export const mechRegister = async (req, res) => {
     try {
@@ -18,7 +19,7 @@ export const mechRegister = async (req, res) => {
         const existingUser = await User.findOne({ email });
 
         if (existingMech) {
-            return res.status(400).json({ error: 'Email already registered.' });
+            return res.status(400).json({ error: 'Email already registered as a Mechanic.' });
         }
         if (existingUser) {
             return res.status(400).json({ error: 'Email already registered as a User.' });
@@ -34,6 +35,9 @@ export const mechRegister = async (req, res) => {
         // Handle companies field, if it's a string, convert to array
         const companiesArray = companies ? companies.split(',').map(company => company.trim()) : [];
 
+        // Create a verification token
+        const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+
         // Create a new mechanic instance
         const newMech = new Mech({
             name,
@@ -45,53 +49,80 @@ export const mechRegister = async (req, res) => {
             experience,
             fee,
             companies: companiesArray,
-            image: imageURL  // Save the Cloudinary image URL in the DB
+            image: imageURL,
+            isVerified: false, 
+            verificationToken, 
         });
 
         // Save the mechanic to the database
         await newMech.save();
-        res.status(201).json({ message: 'Mechanic registered successfully!' });
+
+        // Send the verification email
+        const verificationLink = `${process.env.SERVER_URL}/api/mech/verify-email?token=${verificationToken}`;
+        const emailMessage = `Please click the following link to verify your email: ${verificationLink}`;
+        await sendEmail({
+            email,
+            subject: "Verify Your Email Address",
+            message: emailMessage,
+        });
+
+        res.status(201).json({
+            message: 'Mechanic registered successfully. Please check your email for verification.',
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Something went wrong. Please try again.' });
     }
 };
 
-// Mechanic Login Controller
-// export const loginMechanic = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
+export const verifyMechanicEmail = async (req, res) => {
+    const { token } = req.query;
 
-//         // Check if mechanic exists
-//         const mechanic = await Mech.findOne({ email });
-//         if (!mechanic) {
-//             return res.status(404).json({ success: false, message: "Mechanic not found" });
-//         }
+    if (!token) {
+        return res.status(400).json({ message: 'Verification token is missing' });
+    }
 
-//         // Compare Password
-//         const isMatch = await bcrypt.compare(password, mechanic.password);
-//         if (!isMatch) {
-//             return res.status(400).json({ success: false, message: "Invalid credentials" });
-//         }
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-//         // Generate JWT Token
-//         const token = jwt.sign({ id: mechanic._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
+        // Find the mechanic by email
+        const mechanic = await Mech.findOne({ email: decoded.email });
+        if (!mechanic) {
+            return res.status(400).json({ message: 'Mechanic not found' });
+        }
 
-//         res.status(200).json({ success: true, token, mechanic });
-//     } catch (error) {
-//         console.error("Mechanic login error:", error);
-//         res.status(500).json({ success: false, message: "Server error" });
-//     }
-// };
-// Mechanic Login Controller
+        // Check if the mechanic is already verified
+        if (mechanic.isVerified) {
+            return res.status(400).json({ message: 'Email is already verified' });
+        }
+
+        // Update the mechanic's verification status
+        mechanic.isVerified = true;
+        mechanic.verificationToken = undefined; // Clear the token after verification
+        await mechanic.save();
+
+        res.status(200).json({ message: 'Mechanic email successfully verified. You can now log in.' });
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ message: 'Invalid or expired verification token' });
+    }
+};
+
+// Get mechanics based on company
 export const loginMechanic = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Check if mechanic exists
+        // Check if mechanic exists by email
         const mechanic = await Mech.findOne({ email });
         if (!mechanic) {
             return res.status(404).json({ success: false, message: "Mechanic not found" });
+        }
+
+        // Check if the mechanic has verified their email
+        if (!mechanic.isVerified) {
+            return res.status(400).json({ success: false, message: "Please verify your email before logging in" });
         }
 
         // Compare Password
@@ -103,7 +134,6 @@ export const loginMechanic = async (req, res) => {
         // Generate JWT Token
         const token = jwt.sign({ id: mechanic._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
 
-        // Send mechanicId along with the token in the response
         res.status(200).json({ success: true, token, mechanicId: mechanic._id, mechanic });
     } catch (error) {
         console.error("Mechanic login error:", error);
@@ -111,9 +141,6 @@ export const loginMechanic = async (req, res) => {
     }
 };
 
-
-
-// Get mechanics based on company
 export const getMechanicsByCompany = async (req, res) => {
     const { companyName } = req.params;
 
@@ -133,7 +160,6 @@ export const getMechanicsByCompany = async (req, res) => {
         res.status(500).json({ error: 'Something went wrong. Please try again.' });
     }
 };
-
 
 // Get all mechanics
 export const getAllMechanics = async (req, res) => {

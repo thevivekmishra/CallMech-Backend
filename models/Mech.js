@@ -10,8 +10,10 @@ const mechSchema = new mongoose.Schema({
     experience: { type: String, required: true },
     fee: { type: String, required: true },
     companies: [{ type: String }],
-    image: {type: String,required: true},
+    image: { type: String, required: true },
+    isVerified: { type: Boolean, default: false },  
+    verificationToken: { type: String }, 
 }, { timestamps: true });
 
 const Mech = mongoose.model('Mech', mechSchema);
-export default Mech
+export default Mech;

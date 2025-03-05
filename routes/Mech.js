@@ -1,11 +1,12 @@
 import express from 'express'
 import upload from '../middleware/Multer.js'
-import { mechRegister ,getMechanicsByCompany, getAllMechanics, deleteMechanic, loginMechanic, getMechProfile} from '../controller/MechController.js';
+import { mechRegister ,getMechanicsByCompany, getAllMechanics, deleteMechanic, loginMechanic, getMechProfile, verifyMechanicEmail} from '../controller/MechController.js';
 import protect from '../middleware/AuthMiddleware.js';
 const router = express.Router();
 
 router.post('/mechregister',upload.single('image'),mechRegister);
 
+router.get('/verify-email', verifyMechanicEmail);
 
 router.post("/login", loginMechanic);
 
