@@ -3,7 +3,7 @@ import connectDB from './config/DatabaseConfig.js';
 import cors from 'cors';
 import connectCloudinary from './config/Cloudinary.js';
 import adminRouter from './routes/AdminRoute.js';
-import authRoutes from './routes/AuthRoute.js'
+import authRoutes from './routes/UserRoute.js'
 import mech from './routes/Mech.js'
 import dotenv from 'dotenv';
 import mailRoutes from './routes/MailRoutes.js'
@@ -23,7 +23,7 @@ connectDB();
 connectCloudinary();
 
 //routes/endpoints
-app.use("/api/admin",adminRouter)
+app.use("/api/admin",adminRouter);
 app.use('/api/auth', authRoutes);
 app.use("/api/mech",mech)
 app.use("/api/mail",mailRoutes)

@@ -95,7 +95,6 @@ export const verifyEmail = async (req, res) => {
 };
 
 
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -171,5 +170,86 @@ export const editProfile = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+// Get all users
+export const getAllUsers = async (req, res) => {
+  try {
+      const user = await User.find();
+      
+      if (user.length === 0) {
+          return res.status(404).json({ message: 'No user found.' });
+      }
+
+      res.status(200).json(user);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+};
+
+
+// Delete user controller
+export const deleteUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Find the user and remove
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Something went wrong. Please try again.' });
+    }
+};
+
+// Block user controller (set isVerified to false)
+export const blockUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Find the user and block
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Block user (set isVerified to false)
+        user.isVerified = false;
+        await user.save();
+
+        res.status(200).json({ message: 'User blocked successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Something went wrong. Please try again.' });
+    }
+};
+
+
+export const unblockUser = async (req, res) => {
+  try {
+      const { userId } = req.params;
+
+      // Find the user and block
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found.' });
+      }
+
+      // Block user (set isVerified to false)
+      user.isVerified = true;
+      await user.save();
+
+      res.status(200).json({ message: 'User unblocked successfully.' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Something went wrong. Please try again.' });
   }
 };
