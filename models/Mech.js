@@ -6,7 +6,7 @@ const mechSchema = new mongoose.Schema({
     password: { type: String, required: true },
     contact: { type: String, required: true },
     address: { type: String, required: true },
-    location: { type: String, required: true },
+    city: { type: String, required: true },
     experience: { type: String, required: true },
     fee: { type: String, required: true },
     companies: [{ type: String }],

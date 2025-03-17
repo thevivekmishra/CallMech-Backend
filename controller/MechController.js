@@ -7,7 +7,7 @@ import sendEmail from './MailController.js';
 
 export const mechRegister = async (req, res) => {
     try {
-        const { name, email, password, contact, address, location, experience, fee, companies } = req.body;
+        const { name, email, password, contact, address, city, experience, fee, companies } = req.body;
         const imageFile = req.file;  // Make sure req.file is getting populated from Multer
 
         if (!imageFile) {
@@ -45,7 +45,7 @@ export const mechRegister = async (req, res) => {
             password: hashedPassword,
             contact,
             address,
-            location,
+            city,
             experience,
             fee,
             companies: companiesArray,

@@ -57,7 +57,7 @@ export const getBookingsForUser = async (req, res) => {
 
     try {
         // Find bookings made by the user
-        const bookings = await Booking.find({ userId }).populate('mechanicId', 'name email mobileNumber address location contact image experience fee');
+        const bookings = await Booking.find({ userId }).populate('mechanicId', 'name email  address city contact image experience fee');
 
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({
