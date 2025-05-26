@@ -118,7 +118,6 @@ export const updateBookingStatus = async (req, res) => {
             }
         }
 
-        // Handle Completed status (booking can only be marked as completed within 2 days after selectedDate)
         if (status === 'Completed') {
             const selectedDate = new Date(booking.selectedDate);
             const currentDate = new Date();
@@ -161,21 +160,13 @@ export const updateBookingStatus = async (req, res) => {
 // Get all bookings with full details of the user and mechanic
 export const getAllBookingsDetails = async (req, res) => {
     try {
-        // Fetch all bookings and populate user and mechanic details
         const bookings = await Booking.find()
             .populate('userId', 'name email mobileNumber')  // Populate user details
             .populate('mechanicId', 'name email mobileNumber expertise'); // Populate mechanic details
 
-        if (!bookings || bookings.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No bookings found',
-            });
-        }
-
         return res.status(200).json({
             success: true,
-            bookings,
+            bookings: bookings || [],  // Ensure empty array is returned
         });
     } catch (error) {
         console.error('Error fetching all bookings with details:', error);
@@ -185,6 +176,7 @@ export const getAllBookingsDetails = async (req, res) => {
         });
     }
 };
+
 
 // Delete a booking
 export const deleteBooking = async (req, res) => {

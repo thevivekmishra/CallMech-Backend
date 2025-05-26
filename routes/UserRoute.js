@@ -1,5 +1,5 @@
 import express from 'express';
-import { signup, login, getProfile, editProfile, verifyEmail, getAllUsers, deleteUser, blockUser, unblockUser } from '../controller/UserController.js';
+import { signup, login, getProfile, editProfile, verifyEmail, getAllUsers, deleteUser, blockUser, unblockUser, deleteOwnAccount } from '../controller/UserController.js';
 import protect from '../middleware/AuthMiddleware.js';
 
 const router = express.Router();
@@ -29,5 +29,7 @@ router.delete('/delete-user/:userId', deleteUser);
 router.put('/block-user/:userId', blockUser);
  
 router.put('/unblock-user/:userId', unblockUser);
+
+router.delete('/delete-account', protect, deleteOwnAccount);
 
 export default router;
